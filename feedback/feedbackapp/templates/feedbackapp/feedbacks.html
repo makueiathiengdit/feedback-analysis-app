@@ -1,0 +1,31 @@
+
+<h1>Feedbacks </h1>
+{% if feedbacks %}
+    <table class="table table-hover" id="feedback">
+        <thead>
+            <tr>
+              <th scope="col">S/NO</th>
+              <th scope="col">Message</th>
+              <th scope="col">Label</th>
+              <th scope="col">Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+            {%for feedback in feedbacks %}
+            <tr>
+              <th scope="row">{{forloop.counter}}</th>
+              <td>{{feedback.message}}</td>
+              {% if feedback.label == 'NEGATIVE'  %}
+                  <td class="bg-danger">{{feedback.label}}</td>
+              {%else%}
+                   <td class="bg-success">{{feedback.label}}</td>
+              {%endif%}
+              <td>{{feedback.score}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+      </table>
+{% else %}
+<p>No feedback available currently</p>
+{%endif%}

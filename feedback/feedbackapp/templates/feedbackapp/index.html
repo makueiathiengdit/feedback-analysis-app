@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <title>AI chat</title>
+  </head>
+  <body>
+    <h1 class='text-center'>Hello, welcome to Awet Food Joint</h1>
+    <div class='container'>
+    <div class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">Hi, kindly give us your feedback</h5>
+          <form method='post'>
+            {% csrf_token %}
+            <div class="mb-3">
+              {% comment %} <label for="message" class="form-label">Give us your feedback</label> {% endcomment %}
+              <input type="text" class="form-control" id="message" aria-describedby="message", name='message' placeholder="Type your feedback here"  required>
+            </div>
+
+
+            {% for model in models %}
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="model" id="{{model.id}}" value="{{model.id}}">
+                  <label class="form-check-label" for="{{model.id}}">{{model.name}}</label>
+                </div>
+            {% endfor %}
+      
+            <div class="alert alert-danger" role="alert" id="error">
+                Soemthing wen wrong
+              </div>
+            <button type="submit" class="btn btn-primary" id="submit">Send</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+    {% if feedbacks %}
+    <h1>Most Recent Feedbacks </h1>
+    <table class="table table-hover" id="feedback">
+        <thead>
+            <tr>
+              <th scope="col">S/NO</th>
+              <th scope="col">Message</th>
+              <th scope="col">Label</th>
+              <th scope="col">Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            
+            {%for feedback in feedbacks %}
+            <tr>
+              <th scope="row">{{forloop.counter}}</th>
+              <td>{{feedback.message}}</td>
+              {% if feedback.label == 'NEGATIVE'  %}
+                  <td class="alert-danger">{{feedback.label}}</td>
+              {%else%}
+                   <td class="alert-success">{{feedback.label}}</td>
+              {%endif%}
+              <td>{{feedback.score}}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+      </table>
+{% else %}
+<p>No feedback available currently</p>
+{%endif%}
+</div>
+
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+
+
+
+      <script>
+
+
+        let submitBtn = document.getElementById('submit')
+        let errorMsgHolder = document.getElementById('error')
+        let feedbackHolder = document.getElementById('feedback')
+
+        errorMsgHolder.style.display = 'none'
+        
+        submitBtn.onclick = (e) => {
+            e.preventDefault()
+             let url = 'http://127.0.0.1:8000/'
+             let data = document.getElementById('message').value
+             let model_id = null
+
+             let radioBtns = document.querySelectorAll('input[name="model"]')
+
+             for(rbtn of radioBtns){
+              if(rbtn.checked){
+                model_id = rbtn.value
+              }
+             }
+
+
+             MakePostRequest(url, {'message':data, 'model_id':model_id})
+        }
+
+
+
+        function MakePostRequest(url, data){
+            var jqxhr = $.ajax( url, {method: 'POST', data: data} )
+            .done(function(data) {
+              if(data.model == 'txt-gen'){
+                
+              }
+              //alert("success")
+                console.log(data)
+                //location.reload();
+
+            /*
+                let tr = CreateElement('tr')
+              let th = CreateElement('th')
+
+              let td_msg = CreateElement('td', data.message)
+              let td_lbl = CreateElement('td', data.label)
+              let td_scr = CreateElement('td', data.score)    
+              
+              if(data.label == 'NEGATIVE'){
+                td_lbl.classList.add('bg-danger')
+              }
+              else if (data.label == 'POSITIVE'){
+                td_lbl.classList.add('bg-success')
+              }
+              else{
+                td_lbl.classList.add('alert-warning')
+
+              }
+              tr.appendChild(th)
+              tr.appendChild(td_msg)
+              tr.appendChild(td_lbl)
+              tr.appendChild(td_scr)
+
+              feedbackHolder.appendChild(tr)
+              */
+            })
+            .fail(function(e) {
+    
+                errorMsgHolder.style.display = "block"
+            })
+        }
+       
+        
+
+        function CreateElement(tag, value=null){
+          ele = document.createElement(tag)
+
+          if (value){
+            ele.textContent = value
+          }
+          return ele
+        }
+      </script>
+  </body>
+</html>
